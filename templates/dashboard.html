@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+        rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%2275%22 font-size=%2290%22>🦩</text></svg>"
+    />
+</head>
+<body>
+    <div class="container">
+        <h1>Serveurs gérables</h1>
+        <p>Salut, {{ user['username'] }} ! Voici les serveurs où vous êtes administrateur et où le bot est présent.</p>
+        
+        <ul class="guild-list">
+            {% for guild in guilds %}
+            <li><a href="{{ url_for('server_config', guild_id=guild['id']) }}">{{ guild['name'] }}</a></li>
+            {% endfor %}
+        </ul>
+
+        <a id="add-bot-btn" href="https://discord.com/oauth2/authorize?client_id=1407044768235655331&permissions=8&integration_type=0&scope=bot" target="_blank" class="btn add-server-btn">Ajouter le bot ici 🦩</a>
+
+        <a href="{{ url_for('logout') }}" class="btn logout-btn">Se déconnecter</a>
+    </div>
+</body>
+</html>

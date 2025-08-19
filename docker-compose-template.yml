@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: birthday_bot
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+    volumes:
+      - birthday_bot_db:/var/lib/postgresql/data
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    environment:
+      DATABASE_URL: postgres://username:password@db/birthday_bot
+      DISCORD_TOKEN: "<DISCORD_TOKEN>"
+    depends_on:
+      - db
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    environment:
+      DATABASE_URL: postgres://username:password@db/birthday_bot
+      DISCORD_TOKEN: "<DISCORD_TOKEN>"
+      DISCORD_CLIENT_ID: "<DISCORD_CLIENT_ID>"
+      DISCORD_CLIENT_SECRET: "<DISCORD_CLIENT_SECRET>"
+      REDIRECT_URI: "http://localhost:8000/callback"
+    ports:
+      - "8000:5000"
+    depends_on:
+      - db
+
+volumes:
+  birthday_bot_db:

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de configuration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+        rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%2275%22 font-size=%2290%22>🦩</text></svg>"
+    />
+</head>
+<body>
+    <div class="container">
+        <h1>Bienvenue !</h1>
+        <p>Connectez-vous pour configurer le bot sur vos serveurs Discord.</p>
+        <a href="{{ url_for('login') }}" class="btn">Se connecter avec Discord</a>
+        <p id="credit">By <a href="https://github.com/Fredray-21">@Fredray21</a></p>
+    </div>
+</body>
+</html>

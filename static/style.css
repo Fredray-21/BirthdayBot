@@ -1,0 +1,321 @@
+/* =======================================
+   Variables de couleurs pour une D.A. rose/violet
+   ======================================= */
+:root {
+    --primary-purple: #7a3a99;
+    --secondary-pink: #d978a9;
+    --light-purple: #e0b4f0;
+    --dark-purple: #48235a;
+    --text-color: #f7f3f9;
+    --background-start: #3f1a4e;
+    --background-end: #1a0d24;
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --border-color: rgba(255, 255, 255, 0.2);
+    --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* =======================================
+   Styles généraux et typographie
+   ======================================= */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--text-color);
+    background: linear-gradient(135deg, var(--background-start) 0%, var(--background-end) 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 2rem 1rem;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+    background-color: rgba(26, 13, 36, 0.7);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px var(--shadow-color);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    animation: fadeIn 1s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.5em;
+}
+
+
+h1,
+h2 {
+    font-weight: 700;
+    text-align: center;
+    text-shadow: 0 2px 4px var(--shadow-color);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+h1 {
+    font-size: 2.5rem;
+    background-image: linear-gradient(45deg, var(--light-purple), var(--secondary-pink));
+}
+
+h2 {
+    font-size: 1.8rem;
+    background-image: linear-gradient(45deg, var(--secondary-pink), var(--light-purple));
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+p,
+small {
+    text-align: center;
+    opacity: 0.9;
+}
+
+/* =======================================
+   Formulaires et inputs
+   ======================================= */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--light-purple);
+    text-align: start;
+}
+
+input[type="text"],
+input[type="date"],
+textarea,
+select {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+}
+
+option {
+    color: var(--dark-purple);
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--secondary-pink);
+    box-shadow: 0 0 10px rgba(217, 120, 169, 0.5);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* =======================================
+   Boutons
+   ======================================= */
+.button-group {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 50px;
+    font-weight: 700;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: linear-gradient(45deg, var(--primary-purple), var(--secondary-pink));
+    color: var(--text-color);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.logout-btn {
+    background: var(--dark-purple);
+    border: 1px solid var(--primary-purple);
+    box-shadow: none;
+}
+
+.back-btn {
+    background: none;
+    border: 1px solid var(--light-purple);
+    color: var(--light-purple);
+    margin-top: 1.5rem;
+}
+
+/* =======================================
+   Listes et éléments
+   ======================================= */
+.guild-list {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+}
+
+.guild-list li {
+    margin-bottom: 1rem;
+}
+
+.guild-list li a {
+    text-decoration: none;
+    color: var(--light-purple);
+    font-size: 1.2rem;
+    display: block;
+    padding: 1rem;
+    background-color: var(--input-bg);
+    border-radius: 10px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.guild-list li a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.member-list {
+    width: 80%;
+}
+
+.member-item {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s ease;
+    padding: 1em;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.member-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.member-name {
+    flex-grow: 1;
+    margin-right: 1rem;
+    color: var(--light-purple);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+
+.member-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.member-info img {
+    border-radius: 1em;
+    width: 3em;
+    height: 3em;
+}
+
+.birthday-input {
+    width: 150px;
+}
+
+/* =======================================
+   Animations
+   ======================================= */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =======================================
+   Responsive Design
+   ======================================= */
+@media (max-width: 600px) {
+    .container {
+        padding: 1.5rem;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    .btn {
+        padding: 0.8rem 2rem;
+    }
+}
+
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #e1aede;
+    color: #000;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1000;
+}
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#credit a {
+    color: var(--secondary-pink);
+    text-decoration: none;
+}
+
+#credit a:hover {
+    text-decoration: underline;
+}
+
+#add-bot-btn {
+    background: linear-gradient(45deg, var(--primary-purple), var(--secondary-pink));
+    color: var(--text-color);
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
