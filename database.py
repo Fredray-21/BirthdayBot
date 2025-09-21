@@ -32,13 +32,6 @@ async def create_tables():
         await conn.execute(query)
         print("Tables créées.", flush=True)
 
-# Récupérer les anniversaires du jour
-async def get_birthdays_today(today):
-    query = "SELECT guild_id, member_id FROM birthdays WHERE birthday_date = $1"
-    async with pool.acquire() as conn:
-        rows = await conn.fetch(query, today)
-    return [{"guild_id": r["guild_id"], "member_id": r["member_id"]} for r in rows]
-
 # Ajouter ou mettre à jour un anniversaire
 async def add_birthday(guild_id, member_id, birthday_date):
     query = """
@@ -77,7 +70,13 @@ async def update_guild_settings(guild_id, role_id, channel_id, message):
 
 # Récupérer les anniversaires d'une date spécifique
 async def get_birthdays_on_date(some_date):
-    query = "SELECT guild_id, member_id FROM birthdays WHERE birthday_date = $1"
+    query = """
+    SELECT guild_id, member_id
+    FROM birthdays
+    WHERE EXTRACT(MONTH FROM birthday_date) = EXTRACT(MONTH FROM $1)
+    AND EXTRACT(DAY FROM birthday_date) = EXTRACT(DAY FROM $1);
+    """
+    
     async with pool.acquire() as conn:
         rows = await conn.fetch(query, some_date)
     return [{"guild_id": r["guild_id"], "member_id": r["member_id"]} for r in rows]
