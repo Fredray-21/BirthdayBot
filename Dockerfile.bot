@@ -3,7 +3,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Copier le code nécessaire
-COPY bot.py database.py requirements.txt ./
+COPY bot.py database.py requirements.txt BirthdayPaginator.py ./
 
 # Installer les dépendances
 RUN pip install --no-cache-dir -r requirements.txt

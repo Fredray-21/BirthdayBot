@@ -73,12 +73,12 @@ async def get_birthdays_on_date(some_date):
     query = """
     SELECT guild_id, member_id
     FROM birthdays
-    WHERE EXTRACT(MONTH FROM birthday_date) = EXTRACT(MONTH FROM $1)
-    AND EXTRACT(DAY FROM birthday_date) = EXTRACT(DAY FROM $1);
+    WHERE EXTRACT(MONTH FROM birthday_date) = $1
+    AND EXTRACT(DAY FROM birthday_date) = $2;
     """
     
     async with pool.acquire() as conn:
-        rows = await conn.fetch(query, some_date)
+        rows = await conn.fetch(query, some_date.month, some_date.day)
     return [{"guild_id": r["guild_id"], "member_id": r["member_id"]} for r in rows]
 
 

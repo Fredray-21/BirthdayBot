@@ -1,5 +1,7 @@
 import os
+from BirthdayPaginator import BirthdayPaginator
 import discord
+from discord import Embed
 from discord.ext import commands, tasks
 import asyncio
 import database as db
@@ -176,14 +178,45 @@ async def before_daily_birthday_check():
 @bot.command(name='set-anniv')
 async def set_anniv(ctx, date_anniv: str):
     try:
-        birthday_date = date.fromisoformat(date_anniv)
+        # Parser la date entrée au format JJ/MM/YYYY
+        birthday_date = datetime.strptime(date_anniv, "%d/%m/%Y").date()
+        
         guild_id = ctx.guild.id
         user_id = ctx.author.id
         await db.add_birthday(guild_id, user_id, birthday_date)
-        await ctx.send(f"Ton anniversaire a été enregistré pour le {birthday_date} !")
+        
+        formatted_date = birthday_date.strftime("%d/%m/%Y")
+        await ctx.send(f"Ton anniversaire a été enregistré pour le {formatted_date} !")
     except ValueError:
-        await ctx.send("Le format de la date est incorrect. Utilise le format AAAA-MM-JJ.")
+        await ctx.send("Le format de la date est incorrect. Utilise le format JJ/MM/YYYY.")
 
+@bot.command(name="list-anniv")
+async def list_anniv(ctx):
+    guild_id = ctx.guild.id
+    birthdays = await db.get_all_guild_birthdays(guild_id)
+
+    if not birthdays:
+        await ctx.send("Aucun anniversaire enregistré pour ce serveur.")
+        return
+
+    view = BirthdayPaginator(ctx, birthdays)
+    await ctx.send(embed=view.get_embed(), view=view)
+
+
+bot.remove_command("help")
+@bot.command(name="help")
+async def help_command(ctx):
+    embed = Embed(
+        title="📖 Commandes disponibles",
+        description="Voici les commandes que tu peux utiliser :",
+        color=0x00FF00
+    )
+
+    embed.add_field(name="!set-anniv <JJ/MM/YYYY>", value="Enregistre ton anniversaire.", inline=False)
+    embed.add_field(name="!list-anniv", value="Affiche les anniversaires enregistrés sur ce serveur.", inline=False)
+    embed.add_field(name="!help", value="Affiche cette aide.", inline=False)
+
+    await ctx.send(embed=embed)
 discord_token = os.getenv('DISCORD_TOKEN')
 
 if discord_token:
