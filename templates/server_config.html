@@ -54,14 +54,27 @@
             <h2>Anniversaires des membres</h2>
             {% if members %}
                 {% for member in members %}
-                <div class="member-item"> 
-                    <div class="member-info">
-                        <img src="{{ 'https://cdn.discordapp.com/avatars/' ~ member.get('user', {}).get('id') ~ '/' ~ member.get('user', {}).get('avatar') ~ '.png' if member.get('user', {}).get('avatar') else 'https://cdn.discordapp.com/embed/avatars/0.png' }}" 
-                            alt="{{ member.get('user', {}).get('username', 'Utilisateur inconnu') }}" class="member-avatar">
-                        <span class="member-name">{{ member.get('user', {}).get('username', 'Utilisateur inconnu') }}</span>
+                    <div class="member-item" data-member-id="{{ member.get('user', {}).get('id') }}">
+                        <div class="member-info">
+                            <img src="{{ 'https://cdn.discordapp.com/avatars/' ~ member.get('user', {}).get('id') ~ '/' ~ member.get('user', {}).get('avatar') ~ '.png' if member.get('user', {}).get('avatar') else 'https://cdn.discordapp.com/embed/avatars/0.png' }}" 
+                                alt="{{ member.get('user', {}).get('username', 'Utilisateur inconnu') }}" class="member-avatar">
+
+                            {% if member.get('user', {}).get('username') and not member.get('user', {}).get('username', '').startswith('Utilisateur quitté') %}
+                                <span class="member-name">{{ member.get('user', {}).get('username') }}</span>
+                                {% set has_left = "false" %}
+                            {% else %}
+                                <span class="member-name">{{ member.get('user', {}).get('id') }}</span>
+                                {% set has_left = "true" %}
+                            {% endif %}
+                        </div>
+
+                        <input type="date" class="birthday-input" 
+                            data-member-id="{{ member.get('user', {}).get('id') }}" 
+                            data-left="{{ has_left }}"
+                            value="{{ birthdays.get(member.get('user', {}).get('id'), '') }}">
+
+                        <button class="delete-btn" title="Supprimer">✖</button>
                     </div>
-                    <input type="date" class="birthday-input" data-member-id="{{ member.get('user', {}).get('id') }}" value="{{ birthdays.get(member.get('user', {}).get('id'), '') }}">
-                </div>
                 {% endfor %}
             {% else %}
                 <p>Aucun membre trouvé.</p>
@@ -128,8 +141,8 @@
         const birthdayInputs = document.querySelectorAll('.birthday-input');
         const guildId = "{{ guild_id }}";
 
-        birthdayInputs.forEach(input => {
-            input.addEventListener('change', async (event) => {
+        birthdayInputs.forEach(birthdayInput => {
+            birthdayInput.addEventListener('change', async (event) => {              
                 const memberId = event.target.dataset.memberId;
                 const memberName = event.target.closest('.member-item').querySelector('.member-name').innerText;
                 const birthdayDate = event.target.value;
@@ -156,6 +169,46 @@
                 }
             });
         });
+
+        // ---- SUPPRESSION ANNIVERSAIRE ----
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const memberItem = e.target.closest('.member-item');
+                const memberId = memberItem.dataset.memberId;
+                const birthdayInput = memberItem.querySelector('.birthday-input');
+
+                try {
+                    const response = await fetch('/api/delete_birthday', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            guild_id: guildId,
+                            member_id: memberId
+                        })
+                    });
+
+                    const result = await response.json();
+                    console.log("result",result);
+
+                    if (result.success) {
+                        if (birthdayInput.dataset.left === "true") {
+                            // user a quitté → on retire le bloc entier
+                            memberItem.remove();
+                        } else {
+                            // user actif → on efface juste la date
+                            birthdayInput.value = "";
+                        }
+                        showToast(`Anniversaire supprimé pour ${memberId}`);
+                    } else {
+                        showToast("Erreur: " + result.error);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast("Erreur réseau");
+                }
+            });
+        });
+
     </script>
 </body>
 </html>

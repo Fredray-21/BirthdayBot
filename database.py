@@ -88,3 +88,10 @@ async def get_all_guild_birthdays(guild_id):
         rows = await conn.fetch(query, guild_id)
     # On retourne un dict {member_id: birthday_date}
     return {str(r["member_id"]): str(r["birthday_date"]) for r in rows}
+
+
+# Supprimer un anniversaire
+async def delete_birthday(guild_id, member_id):
+    query = "DELETE FROM birthdays WHERE guild_id = $1 AND member_id = $2"
+    async with pool.acquire() as conn:
+        await conn.execute(query, guild_id, member_id)

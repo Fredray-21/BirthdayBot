@@ -84,6 +84,7 @@ async def dashboard():
 
     return await render_template('dashboard.html', user=session['user'], guilds=admin_guilds)
 
+
 @app.route('/server/<int:guild_id>', methods=['GET', 'POST'])
 async def server_config(guild_id):
     if 'user' not in session:
@@ -93,27 +94,48 @@ async def server_config(guild_id):
 
     bot_headers = {'Authorization': f'Bot {DISCORD_TOKEN}'}
     
+    # Récupération des rôles
     roles_resp = requests.get(f'{API_ENDPOINT}/guilds/{guild_id}/roles', headers=bot_headers)
     roles = roles_resp.json() if roles_resp.status_code == 200 else []
 
+    # Récupération des salons (texte uniquement)
     channels_resp = requests.get(f'{API_ENDPOINT}/guilds/{guild_id}/channels', headers=bot_headers)
     channels = [c for c in channels_resp.json() if c['type'] == 0] if channels_resp.status_code == 200 else []
 
+    # Infos serveur
     guild_resp = requests.get(f'{API_ENDPOINT}/guilds/{guild_id}', headers=bot_headers)
     guild_name = guild_resp.json().get('name', 'Serveur inconnu')
 
+    # Membres (max 1000, hors bots)
     members_resp = requests.get(f'{API_ENDPOINT}/guilds/{guild_id}/members?limit=1000', headers=bot_headers)
     all_members = members_resp.json() if members_resp.status_code == 200 else []
     non_bot_members = [m for m in all_members if not m.get('user', {}).get('bot', False)]
 
+    # Anniversaires stockés en DB
     all_birthdays = await db.get_all_guild_birthdays(guild_id)
     all_birthdays_str_keys = {str(k): v for k, v in all_birthdays.items()}
 
+    # Fusion des membres avec ceux de la DB (pour inclure ceux qui ont quitté)
+    members_dict = {m["user"]["id"]: m for m in non_bot_members}
+
+    for user_id, birthday in all_birthdays_str_keys.items():
+        if user_id not in members_dict:
+            members_dict[user_id] = {
+                "user": {
+                    "id": user_id,
+                    "username": f"Utilisateur quitté ({user_id})",
+                    "avatar": None
+                }
+            }
+
+    final_members = list(members_dict.values())
+
+    # Gestion POST
     if request.method == 'POST':
         data = await request.get_json()
-        role_id = data.get('role_id')           # pas required
-        channel_id = data.get('channel_id')     # required
-        message = data.get('message')           # required avec "@membres" required
+        role_id = data.get('role_id')           # pas obligatoire
+        channel_id = data.get('channel_id')     # obligatoire
+        message = data.get('message')           # obligatoire avec "@membres"
 
         # Vérifications côté serveur
         if not channel_id:
@@ -124,6 +146,7 @@ async def server_config(guild_id):
         await db.update_guild_settings(guild_id, role_id, channel_id, message)
         return jsonify({"success": True})
 
+    # Rendu template
     return await render_template(
         "server_config.html",
         guild_id=guild_id,
@@ -131,9 +154,10 @@ async def server_config(guild_id):
         roles=roles,
         channels=channels,
         settings=current_settings,
-        members=non_bot_members,
+        members=final_members,
         birthdays=all_birthdays_str_keys
     )
+
 
 @app.route('/api/update_birthday', methods=['POST'])
 async def update_birthday():
@@ -156,6 +180,25 @@ async def update_birthday():
         return jsonify({"success": False, "error": "Format de date invalide, attendu YYYY-MM-DD"}), 400
     except Exception as e:
         print(f"Erreur lors de la mise à jour de l'anniversaire: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/delete_birthday', methods=['POST'])
+async def delete_birthday():
+    if 'user' not in session:
+        return jsonify({"success": False, "error": "Authentification requise"}), 401
+
+    data = await request.get_json()
+    guild_id = data.get('guild_id')
+    member_id = data.get('member_id')
+
+    if not all([guild_id, member_id]):
+        return jsonify({"success": False, "error": "Données manquantes"}), 400
+
+    try:
+        await db.delete_birthday(int(guild_id), int(member_id))
+        return jsonify({"success": True, "message": "Anniversaire supprimé"}), 200
+    except Exception as e:
+        print(f"Erreur lors de la suppression de l'anniversaire: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 
